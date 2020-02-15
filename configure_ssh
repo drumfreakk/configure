@@ -1,0 +1,9 @@
+Host pi4 rpi4
+	HostName rpi4
+	IdentityFile ~/.ssh/pi
+	User pi
+
+Host sftp4 rpi4
+	HostName rpi4
+	IdentityFile ~/.ssh/sftp
+	User sftpuser
