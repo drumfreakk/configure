@@ -4,81 +4,31 @@ echo Updating
 sudo apt update
 sudo apt upgrade --yes
 
+echo Installing snap programs
+sudo snap install spotify
+
+echo Installing apt programs
+sudo apt install --yes sed vlc keepassxc cmatrix xdotool gimp curl vim nmap git
+
+
 echo Creating directories
 mkdir /home/$USER/tmp
 mkdir /home/$USER/bin
 
 echo Updating PATH
-echo "export PATH=$PATH:/home/$USER/bin" >> /home/$USER/.bashrc
+echo 'export PATH=$PATH:/home/'$USER'/bin' >> /home/$USER/.bashrc
 
 echo Creating crontab
-echo @reboot rm -rf /home/$USER/tmp/\* > /home/$USER/tmp/$USER
-echo @reboot rm -rf /home/$USER/Downloads/\* >> /home/$USER/tmp/$USER
-sudo chgrp crontab /home/$USER/tmp/$USER
-sudo chmod 600 /home/$USER/tmp/$USER
-sudo mv /home/$USER/tmp/$USER /var/spool/cron/crontabs/
+curl rpi4/configure/cron | sed -e 's/USER/'$USER'/g' >> /home/$USER/tmp/cron
+sudo cat /home/$USER/tmp/cron >> /var/spool/cron/crontabs/$USER
 
 echo Creating hosts file
-wget -O /home/$USER/tmp/hosts 192.168.2.5/configure/configure_hosts
-sudo mv /home/$USER/tmp/hosts /etc/hosts
+sudo curl rpi4/configure/hosts >> /etc/hosts
 
-
-echo Installing spotify
-sudo snap install spotify
-
-echo Installing VLC
-sudo snap install vlc
-
-echo Installing KeepassXC
-sudo snap install keepassxc
-
-echo Installing the gimp
-sudo apt install --yes gimp
-
-echo Installing cmake
-sudo apt install --yes cmake
-
-echo Installing curl
-sudo apt install --yes curl
-
-echo Installing vim
-sudo apt install --yes vim
-
-echo Installing nmap
-sudo apt install --yes nmap
-
-echo Installing and configuring git
-sudo apt install --yes git
+echo Configuring git
 git config --global user.email "kieran.houtgraaf@gmail.com"
 git config --global user.name "Kieran H"
 sudo git config --global user.email "kieran.houtgraaf@gmail.com"
 sudo git config --global user.name "Kieran H"
-
-
-echo Downloading steam and discord
-
-urls=('https://discordapp.com/api/download?platform=linux&format=deb' 'https://steamcdn-a.akamaihd.net/client/installer/steam.deb') 
-
-for ((i=-1;++i<${#urls[@]};)); do
-  curl -L -s ${urls[$i]} >/home/$USER/tmp/toInstall-$i.deb & 
-done
-
-until [[ -z `jobs|grep -E -v 'Done|Terminated'` ]]; do
-  sleep 0.05; echo -n '.' 
-done
-
-echo Installing steam and discord
-sudo dpkg -i /home/$USER/tmp/toInstall-*\.deb
-
-sudo apt install -f
-
-echo Getting ssh config
-wget -O /home/$USER/.ssh/config 192.168.2.5/configure/configure_ssh
-
-echo "Making ssh keys for pi"
-ssh-keygen -t ed25519 -f /home/$USER/.ssh/pi
-
-echo "Making ssh keys for pi sftp server"
-ssh-keygen -t ed25519 -f /home/$USER/.ssh/sftp
 
 echo  Finished!

@@ -1,0 +1,2 @@
+@reboot rm -rf /home/USER/tmp/*
+@reboot rm -rf /home/USER/tmp/*
